@@ -7,7 +7,7 @@ from bokeh.plotting import figure
 
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource
-from bokeh_joystick_widget import Joystick
+from bokeh_joystick_widget import JoystickWidget
 
 
 class ConsoleJoystick(Handler):
@@ -22,7 +22,7 @@ class ConsoleJoystick(Handler):
         source = ColumnDataSource(data=dict(x=pl_x, y=pl_y))
         plot.line('x','y', source=source, line_width=3, line_alpha=0.6, color='#ed5565')
 
-        joystick = Joystick()
+        joystick = JoystickWidget()
         # joystick on event
         # joystick.on_event(Moved, self.handle_move)
         doc.add_root(column(plot, joystick))
