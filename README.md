@@ -9,4 +9,3 @@ The widget makes use of <https://github.com/bobboteck/JoyStick/>.
 ## Setup
 
 ## Usage
-
