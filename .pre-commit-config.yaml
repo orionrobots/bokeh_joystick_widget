@@ -17,3 +17,8 @@ repos:
     rev: 1.8.5
     hooks:
       - id: nbqa-ruff
+
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 2.7.3
+    hooks:
+      - id: editorconfig-checker
