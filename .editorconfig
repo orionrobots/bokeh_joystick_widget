@@ -1,0 +1,18 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+max_line_length = 120
+
+# Python files
+[*.{py,pyi}]
+indent_size = 4
+
+# TypeScript files
+[*.{ts,tsx}]
+indent_size = 2
