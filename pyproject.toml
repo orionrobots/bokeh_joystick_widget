@@ -1,6 +1,6 @@
 [project]
 dynamic = ["version"]
-name = "bokeh_joystick"
+name = "bokeh_joystick_widget"
 dependencies = [
   "bokeh"
 ]
