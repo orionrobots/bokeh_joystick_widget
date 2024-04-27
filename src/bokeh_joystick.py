@@ -1,5 +1,6 @@
 from bokeh.models import InputWidget
 
+
 class Joystick(InputWidget):
     __implementation__ = """
         import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
@@ -36,6 +37,4 @@ class Joystick(InputWidget):
         // You can define additional properties here, if needed
         }
     """
-    __javascript__ = [
-        "https://github.com/bobboteck/JoyStick/raw/master/joy.min.js"
-    ]
+    __javascript__ = ["https://github.com/bobboteck/JoyStick/raw/master/joy.min.js"]
