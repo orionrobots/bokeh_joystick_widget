@@ -43,3 +43,4 @@ jobs:
           branch: auto-update-pre-commit-hooks
           title: "Auto-update pre-commit hooks"
           body: "This pull request was automatically generated to update the pre-commit hooks."
+          base: main
