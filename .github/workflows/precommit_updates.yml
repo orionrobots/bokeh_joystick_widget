@@ -3,6 +3,11 @@ name: Daily Pre-commit Autoupdate
 on:
   schedule:
     - cron: "0 0 * * *"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/precommit_updates.yml
 
 jobs:
   build:
