@@ -2,7 +2,7 @@
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
-import { div } from "core/dom"
+import { input } from "core/dom"
 
 // We will subclass in JavaScript from the same class that was subclassed
 // from in Python
@@ -14,6 +14,7 @@ declare var JoyStick: any; // Assuming JoyStick is globally available
 export class JoystickWidgetView extends InputWidgetView {
   declare model: JoystickWidget;
   theJoystick: any;
+  input_el: HTMLElement;
 
   connect_signals(): void {
     super.connect_signals();
@@ -21,15 +22,20 @@ export class JoystickWidgetView extends InputWidgetView {
   }
 
   protected _render_input(): HTMLElement {
-    const joyDiv = div({id: 'joyDiv', style: {width: '200px', height: '200px'}});
-    this.el.appendChild(joyDiv);
-    this.theJoystick = new JoyStick('joyDiv', {}, (stickData: any) => this.position_changed(stickData));
-    return joyDiv;
+    this.input_el = input({id: 'joyDiv', style: {width: '200px', height: '200px'}, type=})
+    return this.input_el
+
   }
 
   render(): void {
-      super.render();
-      this._render_input(); // Make sure to render the input
+      super.render()
+
+      this.model.position = [0, 0]
+      // this.theJoystick = new JoyStick(
+      //   'joyDiv', {
+      //     autoReturnToCenter: this.model.auto_return_to_center
+      //   }, (stickData: any) => this.position_changed(stickData)
+      // )
   }
 
   position_changed(stickData: any): void {

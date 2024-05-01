@@ -1,5 +1,5 @@
 from bokeh.models import InputWidget
-from bokeh.core.properties import Bool, Float, Tuple
+from bokeh.core.properties import Bool, Float, Tuple, Nullable
 
 class JoystickWidget(InputWidget):
     __implementation__ = "joystick.ts"
@@ -18,4 +18,4 @@ class JoystickWidget(InputWidget):
 
     auto_return_to_center = Bool(default=True, help="Return the joystick to center when released")
     # Add properties that represent the joystick state
-    position = Tuple(Float, Float, help="Position of the joystick")
+    position = Tuple(Float, Float, default=[0,0], help="Position of the joystick")
