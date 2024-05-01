@@ -11,8 +11,8 @@ from bokeh_joystick_widget import JoystickWidget
 
 
 class ConsoleJoystick(Handler):
-    def handle_move(self, event):
-        print(f"move: {event.x}, {event.y}")
+    def position_changed(self, attr, old, new):
+        print(f"position changed: {old} -> {new}")
 
     def modify_document(self, doc: Document) -> None:
         # Make some dummy plot
@@ -23,8 +23,7 @@ class ConsoleJoystick(Handler):
         plot.line('x','y', source=source, line_width=3, line_alpha=0.6, color='#ed5565')
 
         joystick = JoystickWidget()
-        # joystick on event
-        # joystick.on_event(Moved, self.handle_move)
+        joystick.on_change('position', self.position_changed)
         doc.add_root(column(plot, joystick))
 
 server = Server({'/': Application(ConsoleJoystick())}, port=5006)
