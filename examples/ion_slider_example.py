@@ -13,6 +13,9 @@ from double_ended_slider_widget import IonRangeSlider
 
 
 class SliderApp(Handler):
+    def range_changed(self, attr, old, new):
+        print(f"range changed: {old} -> {new}")
+
     def modify_document(self, doc: Document) -> None:
         x = [x*0.005 for x in range(2, 198)]
         y = x
@@ -27,22 +30,13 @@ class SliderApp(Handler):
             source.data = {x, y}
         """)
 
-        callback_ion = CustomJS(args=dict(source=source), code="""
-            const {data} = source
-            const f = cb_obj.range
-            const pow = (Math.log(data.y[100]) / Math.log(data.x[100]))
-            const delta = (f[1] - f[0]) / data.x.length
-            const x = Array.from(data.x, (x, i) => delta*i + f[0])
-            const y = Array.from(x, (x) => Math.pow(x, pow))
-            source.data = {x, y}
-        """)
-
         slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power")
         slider.js_on_change('value', callback_single)
 
         ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
             title='Ion Range Slider - Range')
-        ion_range_slider.js_on_change('range', callback_ion)
+
+        ion_range_slider.on_change('range', self.range_changed)
 
         layout = column(plot, slider, ion_range_slider)
         doc.add_root(layout)
