@@ -5,7 +5,8 @@ class JoystickWidget(InputWidget):
     __implementation__ = "joystick.ts"
 
     __javascript__ = [
-        "https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@v2.0.0/joy.js"
+        # "https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@v2.0.0/joy.js"
+        "https://cdn.jsdelivr.net/gh/orionrobots/BobboTeckJoyStick@shadow-root-support/joy.js"
     ]
 
     # Below are all the "properties" for this model. Bokeh properties are

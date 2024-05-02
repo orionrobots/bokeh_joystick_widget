@@ -2,40 +2,47 @@
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
-import { input } from "core/dom"
+import { div } from "core/dom"
 
 // We will subclass in JavaScript from the same class that was subclassed
 // from in Python
-import { InputWidget, InputWidgetView } from "models/widgets/input_widget";
+import { Widget, WidgetView } from "models/widgets/widget";
 
 
 declare var JoyStick: any; // Assuming JoyStick is globally available
 
-export class JoystickWidgetView extends InputWidgetView {
+export class JoystickWidgetView extends WidgetView {
   declare model: JoystickWidget;
   theJoystick: any;
-  input_el: HTMLElement;
+  joy_el: HTMLElement;
 
   connect_signals(): void {
     super.connect_signals();
     // Connect signals here, for example, to listen for changes to model properties
   }
 
-  protected _render_input(): HTMLElement {
-    this.input_el = input({id: 'joyDiv', style: {width: '200px', height: '200px'}, type=})
-    return this.input_el
-
-  }
-
   render(): void {
       super.render()
 
+      this.joy_el = div({id: 'joyDiv', style: {width: '200px', height: '200px'}})
+      this.shadow_el.appendChild(this.joy_el)
       this.model.position = [0, 0]
-      // this.theJoystick = new JoyStick(
-      //   'joyDiv', {
-      //     autoReturnToCenter: this.model.auto_return_to_center
-      //   }, (stickData: any) => this.position_changed(stickData)
-      // )
+
+      // // Add event listener for Bokeh's "after_layout" event
+      // this.connect(this.model.layout, 'after_layout', () => {
+      //     // DOM element is now available
+      //     this.init_joystick()
+      // })
+  }
+
+  after_layout(): void {
+      // Initialize the joystick
+      this.theJoystick = new JoyStick(
+        'joyDiv', {
+          root: this.shadow_el,
+          autoReturnToCenter: this.model.auto_return_to_center
+        }, (stickData: any) => this.position_changed(stickData)
+      )
   }
 
   position_changed(stickData: any): void {
@@ -47,7 +54,7 @@ export class JoystickWidgetView extends InputWidgetView {
 export namespace JoystickWidget {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
+  export type Props = Widget.Props & {
     position: p.Property<[number, number] | null>
     auto_return_to_center: p.Property<boolean>
   }
@@ -55,7 +62,7 @@ export namespace JoystickWidget {
 
 export interface JoystickWidget extends JoystickWidget.Attrs {};
 
-export class JoystickWidget extends InputWidget {
+export class JoystickWidget extends Widget {
   declare properties: JoystickWidget.Props;
   declare __view_type__: JoystickWidgetView;
 
