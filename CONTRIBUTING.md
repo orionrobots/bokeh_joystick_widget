@@ -2,14 +2,19 @@
 
 ## Local development setup
 
-First, a python intepreter is required. Python3.8 or later. It is then highly recommended to use a virtual environment to manage dependencies. This can be done by running the following commands:
+First, a python interpreter is required. Python3.9 or later. Install poetry, then install the development app and dependencies with:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-pip install -r dev_requirements.txt
+poetry install
 ```
+
+You can then enter the virtual environment with:
+
+```bash
+poetry shell
+```
+
+## Running linters
 
 This project requires PR's to pass pre-commit checks. To set up the hooks:
 
