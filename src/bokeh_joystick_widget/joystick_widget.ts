@@ -10,8 +10,6 @@ import { Widget, WidgetView } from "models/widgets/widget"
 import { JoyStick } from "./joystick"
 
 
-// declare var JoyStick: any; // Assuming JoyStick is globally available
-
 export class JoystickWidgetView extends WidgetView {
   declare model: JoystickWidget;
   theJoystick: any;
