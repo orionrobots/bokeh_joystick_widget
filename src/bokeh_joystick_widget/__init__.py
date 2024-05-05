@@ -2,7 +2,8 @@ from bokeh.models import InputWidget
 from bokeh.core.properties import Bool, Float, Tuple, Nullable
 
 class JoystickWidget(InputWidget):
-    __implementation__ = "dist/bokeh_joystick_widget.js"
+    # __implementation__ = "dist/bokeh_joystick_widget.js"
+    __implementation__ = "joystick_widget.ts"
 
     # __view_module__ = "bokeh_joystick_widget"
 

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Bokeh Plot</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        display: flow-root;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.4.1.min.js"></script>
+    <script type="text/javascript">
+        Bokeh.set_log_level("info");
+    </script>
+    <script type="text/javascript">
+        (function(root, factory) {
+    factory(root["Bokeh"]);
+})(this, function(Bokeh) {
+  let define;
+  return (function outer(modules, entry) {
+  if (Bokeh != null) {
+    return Bokeh.register_plugin(modules, entry);
+  } else {
+    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+  }
+})
+({
+  "custom/main": function(require, module, exports) {
+    const models = {
+      "JoystickWidget": require("custom/bokeh_joystick_widget.joystick_widget").JoystickWidget
+    };
+    require("base").register_models(models);
+    module.exports = models;
+  },
+  "185560ddca6c1f9f8bc91e3813d755377faa0a7ad99f83cd24d12830c209e8db": function(require, module, exports) {
+"use strict";
+/*
+ * Name          : joystick.ts
+ * @author       : Roberto D'Amico (Bobboteck)
+ * Last modified : 05.02.2024
+ * Revision      : 3.1.0
+ *
+ * Modification History:
+ * Date         Version     Modified By     Description
+ * 2024-05-02   3.1.0       Danny Staple    Swapping element name, for an element
+ * 2023-09-22   3.0.0       cybaj           Porting to TypeScript
+ * 2021-12-21   2.0.0       Roberto D'Amico New version of the project that integrates the callback functions, while
+ *                                          maintaining compatibility with previous versions. Fixed Issue #27 too,
+ *                                          thanks to @artisticfox8 for the suggestion.
+ * 2020-06-09   1.1.6       Roberto D'Amico Fixed Issue #10 and #11
+ * 2020-04-20   1.1.5       Roberto D'Amico Correct: Two sticks in a row, thanks to @liamw9534 for the suggestion
+ * 2020-04-03               Roberto D'Amico Correct: InternalRadius when change the size of canvas, thanks to
+ *                                          @vanslipon for the suggestion
+ * 2020-01-07   1.1.4       Roberto D'Amico Close #6 by implementing a new parameter to set the functionality of
+ *                                          auto-return to 0 position
+ * 2019-11-18   1.1.3       Roberto D'Amico Close #5 correct indication of East direction
+ * 2019-11-12   1.1.2       Roberto D'Amico Removed Fix #4 incorrectly introduced and restored operation with touch
+ *                                          devices
+ * 2019-11-12   1.1.1       Roberto D'Amico Fixed Issue #4 - Now JoyStick work in any position in the page, not only
+ *                                          at 0,0
+ *
+ * The MIT License (MIT)
+ *
+ *  This file is part of the JoyStick Project (https://github.com/bobboteck/JoyStick).
+ *	Copyright (c) 2015 Roberto D'Amico (Bobboteck).
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JoyStick = void 0;
+const defaultStickStatus = {
+    xPosition: 0,
+    yPosition: 0,
+    x: 0,
+    y: 0,
+    cardinalDirection: "C",
+};
+const JoyStickDefaultParameters = {
+    title: "joystick",
+    width: 0,
+    height: 0,
+    internalFillColor: "#00AA00",
+    internalLineWidth: 2,
+    internalStrokeColor: "#003300",
+    externalLineWidth: 2,
+    externalStrokeColor: "#008000",
+    autoReturnToCenter: true,
+};
+class JoyStick {
+    constructor(container, parameters = {}, callback = () => { }) {
+        this.callback = callback;
+        // Merge the user parameters with the default ones
+        // and check if the mandatory parameters are defined
+        // otherwise throw an error.
+        const mergedParameters = {
+            ...JoyStickDefaultParameters,
+            ...parameters,
+        };
+        this.title = mergedParameters.title;
+        this.width = mergedParameters.width;
+        this.height = mergedParameters.height;
+        this.internalFillColor = mergedParameters.internalFillColor;
+        this.internalLineWidth = mergedParameters.internalLineWidth;
+        this.internalStrokeColor = mergedParameters.internalStrokeColor;
+        this.externalLineWidth = mergedParameters.externalLineWidth;
+        this.externalStrokeColor = mergedParameters.externalStrokeColor;
+        this.autoReturnToCenter = mergedParameters.autoReturnToCenter;
+        this.objContainer = container;
+        this.objContainer.style.touchAction = "none";
+        this.canvas = document.createElement("canvas");
+        this.canvas.id = this.title;
+        if (this.width === 0) {
+            this.width = this.objContainer.clientWidth;
+        }
+        if (this.height === 0) {
+            this.height = this.objContainer.clientHeight;
+        }
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.objContainer.appendChild(this.canvas);
+        const context = this.canvas.getContext("2d");
+        if (!context) {
+            throw new Error("Unable to get the 2D context from the canvas.");
+        }
+        this.context = context;
+        // configuration of the Joystick
+        this.circumference = 2 * Math.PI;
+        this.internalRadius =
+            (this.canvas.width - (this.canvas.width / 2 + 10)) / 2;
+        this.maxMoveStick = this.internalRadius + 5;
+        this.externalRadius = this.internalRadius + 30;
+        this.centerX = this.canvas.width / 2;
+        this.centerY = this.canvas.height / 2;
+        this.directionHorizontalLimitPos = this.canvas.width / 10;
+        this.directionHorizontalLimitNeg = this.directionHorizontalLimitPos * -1;
+        this.directionVerticalLimitPos = this.canvas.height / 10;
+        this.directionVerticalLimitNeg = this.directionVerticalLimitPos * -1;
+        this.stickStatus = defaultStickStatus;
+        this.pressed = false;
+        // Used to save current position of stick
+        this.movedX = this.centerX;
+        this.movedY = this.centerY;
+        // Check if the device support the touch or not
+        if ("ontouchstart" in document.documentElement) {
+            this.canvas.addEventListener("touchstart", this.onTouchStart.bind(this), false);
+            document.addEventListener("touchmove", this.onTouchMove.bind(this), false);
+            document.addEventListener("touchend", this.onTouchEnd.bind(this), false);
+        }
+        else {
+            this.canvas.addEventListener("mousedown", this.onMouseDown.bind(this), false);
+            document.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+            document.addEventListener("mouseup", this.onMouseUp.bind(this), false);
+        }
+        // Draw the object
+        this.drawExternal();
+        this.drawInternal();
+    }
+    /**
+     * @desc Draw the external circle used as reference position
+     */
+    drawExternal() {
+        this.context.beginPath();
+        this.context.arc(this.centerX, this.centerY, this.externalRadius, 0, this.circumference, false);
+        this.context.lineWidth = this.externalLineWidth;
+        this.context.strokeStyle = this.externalStrokeColor;
+        this.context.stroke();
+    }
+    /**
+     * @desc Draw the internal stick in the current position the user have moved it
+     */
+    drawInternal() {
+        this.context.beginPath();
+        if (this.movedX < this.internalRadius) {
+            this.movedX = this.maxMoveStick;
+        }
+        if (this.movedX + this.internalRadius > this.canvas.width) {
+            this.movedX = this.canvas.width - this.maxMoveStick;
+        }
+        if (this.movedY < this.internalRadius) {
+            this.movedY = this.maxMoveStick;
+        }
+        if (this.movedY + this.internalRadius > this.canvas.height) {
+            this.movedY = this.canvas.height - this.maxMoveStick;
+        }
+        this.context.arc(this.movedX, this.movedY, this.internalRadius, 0, this.circumference, false);
+        // create radial gradient
+        var grd = this.context.createRadialGradient(this.centerX, this.centerY, 5, this.centerX, this.centerY, 200);
+        // Light color
+        grd.addColorStop(0, this.internalFillColor);
+        // Dark color
+        grd.addColorStop(1, this.internalStrokeColor);
+        this.context.fillStyle = grd;
+        this.context.fill();
+        this.context.lineWidth = this.internalLineWidth;
+        this.context.strokeStyle = this.internalStrokeColor;
+        this.context.stroke();
+    }
+    /**
+     * @desc Events for manage touch
+     */
+    onTouchStart(_) {
+        this.pressed = true;
+    }
+    onTouchMove(event) {
+        if (this.pressed && event.targetTouches[0].target === this.canvas) {
+            this.movedX = event.targetTouches[0].pageX;
+            this.movedY = event.targetTouches[0].pageY;
+            // Manage offset
+            if (this.canvas.offsetParent?.tagName.toUpperCase() === "BODY") {
+                this.movedX -= this.canvas.offsetLeft;
+                this.movedY -= this.canvas.offsetTop;
+            }
+            else {
+                // TODO delete offsetParent dependency
+                // @ts-ignore
+                this.movedX -= this.canvas.offsetParent?.offsetLeft;
+                // @ts-ignore
+                this.movedY -= this.canvas.offsetParent?.offsetTop;
+            }
+            // Delete canvas
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            // Redraw object
+            this.drawExternal();
+            this.drawInternal();
+            // Set attribute of callback
+            this.stickStatus.xPosition = this.movedX;
+            this.stickStatus.yPosition = this.movedY;
+            this.stickStatus.x =
+                100 * ((this.movedX - this.centerX) / this.maxMoveStick);
+            this.stickStatus.y =
+                100 * ((this.movedY - this.centerY) / this.maxMoveStick) * -1;
+            this.stickStatus.cardinalDirection = this.getCardinalDirection();
+            this.callback(this.stickStatus);
+        }
+    }
+    onTouchEnd(_) {
+        this.pressed = false;
+        // If required reset position store variable
+        if (this.autoReturnToCenter) {
+            this.movedX = this.centerX;
+            this.movedY = this.centerY;
+        }
+        // Delete canvas
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Redraw object
+        this.drawExternal();
+        this.drawInternal();
+        // Set attribute of callback
+        this.stickStatus.xPosition = this.movedX;
+        this.stickStatus.yPosition = this.movedY;
+        this.stickStatus.x =
+            100 * ((this.movedX - this.centerX) / this.maxMoveStick);
+        this.stickStatus.y =
+            100 * ((this.movedY - this.centerY) / this.maxMoveStick) * -1;
+        this.stickStatus.cardinalDirection = this.getCardinalDirection();
+        this.callback(this.stickStatus);
+    }
+    /**
+     * @desc Events for manage mouse
+     */
+    onMouseDown(_) {
+        this.pressed = true;
+    }
+    /* To simplify this code there was a new experimental feature here: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX , but it present only in Mouse case not metod presents in Touch case :-( */
+    onMouseMove(event) {
+        if (this.pressed) {
+            this.movedX = event.pageX;
+            this.movedY = event.pageY;
+            // Manage offset
+            if (this.canvas.offsetParent?.tagName.toUpperCase() === "BODY") {
+                this.movedX -= this.canvas.offsetLeft;
+                this.movedY -= this.canvas.offsetTop;
+            }
+            else {
+                // @ts-ignore
+                this.movedX -= this.canvas.offsetParent?.offsetLeft;
+                // @ts-ignore
+                this.movedY -= this.canvas.offsetParent?.offsetTop;
+            }
+            // Delete canvas
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            // Redraw object
+            this.drawExternal();
+            this.drawInternal();
+            // Set attribute of callback
+            this.stickStatus.xPosition = this.movedX;
+            this.stickStatus.yPosition = this.movedY;
+            this.stickStatus.x =
+                100 * ((this.movedX - this.centerX) / this.maxMoveStick);
+            this.stickStatus.y =
+                100 * ((this.movedY - this.centerY) / this.maxMoveStick) * -1;
+            this.stickStatus.cardinalDirection = this.getCardinalDirection();
+            this.callback(this.stickStatus);
+        }
+    }
+    onMouseUp(_) {
+        this.pressed = false;
+        // If required reset position store variable
+        if (this.autoReturnToCenter) {
+            this.movedX = this.centerX;
+            this.movedY = this.centerY;
+        }
+        // Delete canvas
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Redraw object
+        this.drawExternal();
+        this.drawInternal();
+        // Set attribute of callback
+        this.stickStatus.xPosition = this.movedX;
+        this.stickStatus.yPosition = this.movedY;
+        this.stickStatus.x =
+            100 * ((this.movedX - this.centerX) / this.maxMoveStick);
+        this.stickStatus.y =
+            100 * ((this.movedY - this.centerY) / this.maxMoveStick) * -1;
+        this.stickStatus.cardinalDirection = this.getCardinalDirection();
+        this.callback(this.stickStatus);
+    }
+    getCardinalDirection() {
+        let result = "";
+        const orizontal = this.movedX - this.centerX;
+        const vertical = this.movedY - this.centerY;
+        if (vertical >= this.directionVerticalLimitNeg &&
+            vertical <= this.directionVerticalLimitPos) {
+            result = "C";
+        }
+        if (vertical < this.directionVerticalLimitNeg) {
+            result = "N";
+        }
+        if (vertical > this.directionVerticalLimitPos) {
+            result = "S";
+        }
+        if (orizontal < this.directionHorizontalLimitNeg) {
+            if (result === "C") {
+                result = "W";
+            }
+            else {
+                result += "W";
+            }
+        }
+        if (orizontal > this.directionHorizontalLimitPos) {
+            if (result === "C") {
+                result = "E";
+            }
+            else {
+                result += "E";
+            }
+        }
+        return result;
+    }
+    /**
+     * @desc The width of canvas
+     * @return Number of pixel width
+     */
+    getWidth() {
+        return this.canvas.width;
+    }
+    /**
+     * @desc The height of canvas
+     * @return Number of pixel height
+     */
+    getHeigh() {
+        return this.canvas.height;
+    }
+    /**
+     * @desc The X position of the cursor relative to the canvas that contains it and to its dimensions
+     * @return Number that indicate relative position
+     */
+    getPosX() {
+        return this.movedX;
+    }
+    /**
+     * @desc The Y position of the cursor relative to the canvas that contains it and to its dimensions
+     * @return Number that indicate relative position
+     */
+    getPosY() {
+        return this.movedY;
+    }
+    /**
+     * @desc Normalizzed value of X move of stick
+     * @return Integer from -100 to +100
+     */
+    getX() {
+        return 100 * ((this.movedX - this.centerX) / this.maxMoveStick);
+    }
+    /**
+     * @desc Normalizzed value of Y move of stick
+     * @return Integer from -100 to +100
+     */
+    getY() {
+        return 100 * ((this.movedY - this.centerY) / this.maxMoveStick) * -1;
+    }
+    /**
+     * @desc Get the direction of the cursor as a string that indicates the cardinal points where this is oriented
+     * @return String of cardinal point N, NE, E, SE, S, SW, W, NW and C when it is placed in the center
+     */
+    getDir() {
+        return this.getCardinalDirection();
+    }
+}
+exports.JoyStick = JoyStick;
+JoyStick.__name__ = "JoyStick";
+exports.default = JoyStick;
+//# sourceMappingURL=joystick.js.map
+},
+"custom/bokeh_joystick_widget.joystick_widget": function(require, module, exports) {
+"use strict";
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JoystickWidget = exports.JoystickWidgetView = void 0;
+// HTML construction and manipulation functions
+const dom_1 = require("core/dom");
+// We will subclass in JavaScript from the same class that was subclassed
+// from in Python
+const widget_1 = require("models/widgets/widget");
+const joystick_1 = require("185560ddca6c1f9f8bc91e3813d755377faa0a7ad99f83cd24d12830c209e8db");
+// declare var JoyStick: any; // Assuming JoyStick is globally available
+class JoystickWidgetView extends widget_1.WidgetView {
+    connect_signals() {
+        super.connect_signals();
+        // Connect signals here, for example, to listen for changes to model properties
+    }
+    render() {
+        super.render();
+        this.joy_el = (0, dom_1.div)({ id: 'joyDiv', style: { width: '200px', height: '200px' } });
+        this.shadow_el.appendChild(this.joy_el);
+        this.model.position = [0, 0];
+        // // Add event listener for Bokeh's "after_layout" event
+        // this.connect(this.model.layout, 'after_layout', () => {
+        //     // DOM element is now available
+        //     this.init_joystick()
+        // })
+    }
+    after_layout() {
+        // Initialize the joystick
+        this.theJoystick = new joystick_1.JoyStick(this.joy_el, {
+            autoReturnToCenter: this.model.auto_return_to_center
+        }, (stickData) => this.position_changed(stickData));
+    }
+    position_changed(stickData) {
+        // Do something when the position changes
+        this.model.position = [stickData.xPosition, stickData.yPosition];
+    }
+}
+exports.JoystickWidgetView = JoystickWidgetView;
+JoystickWidgetView.__name__ = "JoystickWidgetView";
+;
+class JoystickWidget extends widget_1.Widget {
+    constructor(attrs) {
+        super(attrs);
+    }
+}
+exports.JoystickWidget = JoystickWidget;
+_a = JoystickWidget;
+JoystickWidget.__name__ = "JoystickWidget";
+(() => {
+    _a.prototype.default_view = JoystickWidgetView;
+    _a.define(({ Tuple, Bool, Float, Nullable }) => ({
+        position: [Nullable(Tuple(Float, Float)), null],
+        auto_return_to_center: [Bool, true]
+    }));
+})();
+// import {register_models} from "@bokehjs/base"
+// register_models({JoystickWidget})
+//# sourceMappingURL=joystick_widget.js.map
+}
+}, "custom/main");
+;
+});
+
+    </script>
+  </head>
+  <body>
+    <div id="f95a0d0a-a891-44ac-ae96-9803c4b9af41" data-root-id="p1048" style="display: contents;"></div>
+  
+    <script type="application/json" id="f09583d5-bf26-4b0b-a103-fa7b211f1341">
+      {"f0798f80-510a-449e-926f-ac6ecffdb9a9":{"version":"3.4.1","title":"Bokeh Application","roots":[{"type":"object","name":"Column","id":"p1048","attributes":{"children":[{"type":"object","name":"Figure","id":"p1001","attributes":{"width":500,"height":500,"x_range":{"type":"object","name":"Range1d","id":"p1010","attributes":{"start":-1}},"y_range":{"type":"object","name":"Range1d","id":"p1011","attributes":{"start":-1}},"x_scale":{"type":"object","name":"LinearScale","id":"p1012"},"y_scale":{"type":"object","name":"LinearScale","id":"p1013"},"title":{"type":"object","name":"Title","id":"p1008"},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1044","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1035","attributes":{"selected":{"type":"object","name":"Selection","id":"p1036","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1037"},"data":{"type":"map","entries":[["x",[0.01,0.015,0.02,0.025,0.03,0.035,0.04,0.045,0.05,0.055,0.06,0.065,0.07,0.075,0.08,0.085,0.09,0.095,0.1,0.105,0.11,0.115,0.12,0.125,0.13,0.135,0.14,0.145,0.15,0.155,0.16,0.165,0.17,0.17500000000000002,0.18,0.185,0.19,0.195,0.2,0.20500000000000002,0.21,0.215,0.22,0.225,0.23,0.23500000000000001,0.24,0.245,0.25,0.255,0.26,0.265,0.27,0.275,0.28,0.28500000000000003,0.29,0.295,0.3,0.305,0.31,0.315,0.32,0.325,0.33,0.335,0.34,0.34500000000000003,0.35000000000000003,0.355,0.36,0.365,0.37,0.375,0.38,0.385,0.39,0.395,0.4,0.405,0.41000000000000003,0.41500000000000004,0.42,0.425,0.43,0.435,0.44,0.445,0.45,0.455,0.46,0.465,0.47000000000000003,0.47500000000000003,0.48,0.485,0.49,0.495,0.5,0.505,0.51,0.515,0.52,0.525,0.53,0.535,0.54,0.545,0.55,0.555,0.56,0.5650000000000001,0.5700000000000001,0.5750000000000001,0.58,0.585,0.59,0.595,0.6,0.605,0.61,0.615,0.62,0.625,0.63,0.635,0.64,0.645,0.65,0.655,0.66,0.665,0.67,0.675,0.68,0.685,0.6900000000000001,0.6950000000000001,0.7000000000000001,0.705,0.71,0.715,0.72,0.725,0.73,0.735,0.74,0.745,0.75,0.755,0.76,0.765,0.77,0.775,0.78,0.785,0.79,0.795,0.8,0.805,0.81,0.8150000000000001,0.8200000000000001,0.8250000000000001,0.8300000000000001,0.835,0.84,0.845,0.85,0.855,0.86,0.865,0.87,0.875,0.88,0.885,0.89,0.895,0.9,0.905,0.91,0.915,0.92,0.925,0.93,0.935,0.9400000000000001,0.9450000000000001,0.9500000000000001,0.9550000000000001,0.96,0.965,0.97,0.975,0.98,0.985]],["y",[0.01,0.015,0.02,0.025,0.03,0.035,0.04,0.045,0.05,0.055,0.06,0.065,0.07,0.075,0.08,0.085,0.09,0.095,0.1,0.105,0.11,0.115,0.12,0.125,0.13,0.135,0.14,0.145,0.15,0.155,0.16,0.165,0.17,0.17500000000000002,0.18,0.185,0.19,0.195,0.2,0.20500000000000002,0.21,0.215,0.22,0.225,0.23,0.23500000000000001,0.24,0.245,0.25,0.255,0.26,0.265,0.27,0.275,0.28,0.28500000000000003,0.29,0.295,0.3,0.305,0.31,0.315,0.32,0.325,0.33,0.335,0.34,0.34500000000000003,0.35000000000000003,0.355,0.36,0.365,0.37,0.375,0.38,0.385,0.39,0.395,0.4,0.405,0.41000000000000003,0.41500000000000004,0.42,0.425,0.43,0.435,0.44,0.445,0.45,0.455,0.46,0.465,0.47000000000000003,0.47500000000000003,0.48,0.485,0.49,0.495,0.5,0.505,0.51,0.515,0.52,0.525,0.53,0.535,0.54,0.545,0.55,0.555,0.56,0.5650000000000001,0.5700000000000001,0.5750000000000001,0.58,0.585,0.59,0.595,0.6,0.605,0.61,0.615,0.62,0.625,0.63,0.635,0.64,0.645,0.65,0.655,0.66,0.665,0.67,0.675,0.68,0.685,0.6900000000000001,0.6950000000000001,0.7000000000000001,0.705,0.71,0.715,0.72,0.725,0.73,0.735,0.74,0.745,0.75,0.755,0.76,0.765,0.77,0.775,0.78,0.785,0.79,0.795,0.8,0.805,0.81,0.8150000000000001,0.8200000000000001,0.8250000000000001,0.8300000000000001,0.835,0.84,0.845,0.85,0.855,0.86,0.865,0.87,0.875,0.88,0.885,0.89,0.895,0.9,0.905,0.91,0.915,0.92,0.925,0.93,0.935,0.9400000000000001,0.9450000000000001,0.9500000000000001,0.9550000000000001,0.96,0.965,0.97,0.975,0.98,0.985]]]}}},"view":{"type":"object","name":"CDSView","id":"p1045","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1046"}}},"glyph":{"type":"object","name":"Line","id":"p1041","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_color":"#ed5565","line_alpha":0.6,"line_width":3}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1042","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_color":"#ed5565","line_alpha":0.1,"line_width":3}},"muted_glyph":{"type":"object","name":"Line","id":"p1043","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_color":"#ed5565","line_alpha":0.2,"line_width":3}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1009","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1024"},{"type":"object","name":"WheelZoomTool","id":"p1025","attributes":{"renderers":"auto"}},{"type":"object","name":"BoxZoomTool","id":"p1026","attributes":{"overlay":{"type":"object","name":"BoxAnnotation","id":"p1027","attributes":{"syncable":false,"level":"overlay","visible":false,"left":{"type":"number","value":"nan"},"right":{"type":"number","value":"nan"},"top":{"type":"number","value":"nan"},"bottom":{"type":"number","value":"nan"},"left_units":"canvas","right_units":"canvas","top_units":"canvas","bottom_units":"canvas","line_color":"black","line_alpha":1.0,"line_width":2,"line_dash":[4,4],"fill_color":"lightgrey","fill_alpha":0.5}}}},{"type":"object","name":"SaveTool","id":"p1032"},{"type":"object","name":"ResetTool","id":"p1033"},{"type":"object","name":"HelpTool","id":"p1034"}]}},"left":[{"type":"object","name":"LinearAxis","id":"p1019","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1020","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1021"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1022"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1014","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1015","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1016"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1017"}}}],"center":[{"type":"object","name":"Grid","id":"p1018","attributes":{"axis":{"id":"p1014"}}},{"type":"object","name":"Grid","id":"p1023","attributes":{"dimension":1,"axis":{"id":"p1019"}}}]}},{"type":"object","name":"JoystickWidget","id":"p1047","attributes":{"position":[0,0]}}]}}]}}
+    </script>
+    <script type="text/javascript">
+      (function() {
+        const fn = function() {
+          Bokeh.safely(function() {
+            (function(root) {
+              function embed_document(root) {
+              const docs_json = document.getElementById('f09583d5-bf26-4b0b-a103-fa7b211f1341').textContent;
+              const render_items = [{"docid":"f0798f80-510a-449e-926f-ac6ecffdb9a9","roots":{"p1048":"f95a0d0a-a891-44ac-ae96-9803c4b9af41"},"root_ids":["p1048"]}];
+              root.Bokeh.embed.embed_items(docs_json, render_items);
+              }
+              if (root.Bokeh !== undefined) {
+                embed_document(root);
+              } else {
+                let attempts = 0;
+                const timer = setInterval(function(root) {
+                  if (root.Bokeh !== undefined) {
+                    clearInterval(timer);
+                    embed_document(root);
+                  } else {
+                    attempts++;
+                    if (attempts > 100) {
+                      clearInterval(timer);
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                    }
+                  }
+                }, 10, root)
+              }
+            })(window);
+          });
+        };
+        if (document.readyState != "loading") fn();
+        else document.addEventListener("DOMContentLoaded", fn);
+      })();
+    </script>
+  </body>
+</html>
