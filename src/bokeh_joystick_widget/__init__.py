@@ -2,12 +2,14 @@ from bokeh.models import InputWidget
 from bokeh.core.properties import Bool, Float, Tuple, Nullable
 
 class JoystickWidget(InputWidget):
-    __implementation__ = "joystick.ts"
+    __implementation__ = "dist/bokeh_joystick_widget.js"
 
-    __javascript__ = [
-        # "https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@v2.0.0/joy.js"
-        "https://cdn.jsdelivr.net/gh/orionrobots/BobboTeckJoyStick@shadow-root-support/joy.js"
-    ]
+    # __view_module__ = "bokeh_joystick_widget"
+
+    # __javascript__ = [
+    #     # "https://cdn.jsdelivr.net/gh/bobboteck/JoyStick@v2.0.0/joy.js"
+    #     "https://cdn.jsdelivr.net/gh/orionrobots/BobboTeckJoyStick@shadow-root-support/joy.js"
+    # ]
 
     # Below are all the "properties" for this model. Bokeh properties are
     # class attributes that define the fields (and their types) that can be
