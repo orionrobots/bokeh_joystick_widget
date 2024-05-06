@@ -220,24 +220,24 @@ export class JoyStick {
         this.onTouchStart.bind(this),
         false
       );
-      document.addEventListener(
+      container.addEventListener(
         "touchmove",
         this.onTouchMove.bind(this),
         false
       );
-      document.addEventListener("touchend", this.onTouchEnd.bind(this), false);
+      container.addEventListener("touchend", this.onTouchEnd.bind(this), false);
     } else {
       this.canvas.addEventListener(
         "mousedown",
         this.onMouseDown.bind(this),
         false
       );
-      document.addEventListener(
+      container.addEventListener(
         "mousemove",
         this.onMouseMove.bind(this),
         false
       );
-      document.addEventListener("mouseup", this.onMouseUp.bind(this), false);
+      container.addEventListener("mouseup", this.onMouseUp.bind(this), false);
     }
 
     // Draw the object
