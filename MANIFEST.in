@@ -1,1 +1,1 @@
-include dist/bokeh_joystick_widget.js
+include src/bokeh_joystick_widget/*.ts
