@@ -1,12 +1,12 @@
 /*
  * Name          : joystick.ts
  * @author       : Roberto D'Amico (Bobboteck)
- * Last modified : 05.02.2024
- * Revision      : 3.1.0
+ * Last modified : 05.06.2024
+ * Revision      : 4.0.0
  *
  * Modification History:
  * Date         Version     Modified By     Description
- * 2024-05-02   3.1.0       Danny Staple    Swapping element name, for an element
+ * 2024-05-06   4.0.0       Danny Staple    Making embeddable in Bokeh
  * 2023-09-22   3.0.0       cybaj           Porting to TypeScript
  * 2021-12-21   2.0.0       Roberto D'Amico New version of the project that integrates the callback functions, while
  *                                          maintaining compatibility with previous versions. Fixed Issue #27 too,
@@ -379,7 +379,9 @@ export class JoyStick {
     this.pressed = true;
   }
 
-  /* To simplify this code there was a new experimental feature here: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX , but it present only in Mouse case not metod presents in Touch case :-( */
+  /* To simplify this code there was a new experimental feature here:
+    https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX ,
+    but it present only in Mouse case not method presents in Touch case :-( */
   private onMouseMove(event: MouseEvent) {
     if (this.pressed) {
       this.movedX = event.pageX;
