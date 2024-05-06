@@ -25,7 +25,7 @@ export class JoystickWidgetView extends WidgetView {
   override render(): void {
       super.render()
 
-      this.joy_el = div({id: 'joyDiv', style: {width: '200px', height: '200px'}})
+      this.joy_el = div({id: 'joyDiv', style: {width: this.model.width + 'px', height: this.model.height + 'px'}})
       this.shadow_el.appendChild(this.joy_el)
       this.model.position = [0, 0]
 
@@ -47,7 +47,7 @@ export class JoystickWidgetView extends WidgetView {
 
   position_changed(stickData: any): void {
       // Do something when the position changes
-      this.model.position = [stickData.xPosition, stickData.yPosition]
+      this.model.position = [stickData.x, stickData.y]
   }
 }
 

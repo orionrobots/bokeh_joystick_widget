@@ -4,7 +4,7 @@ This is a custom widget for the Python Bokeh library that allows you to control 
 
 The widget has x and y properties that are updated as the joystick is moved. The x and y properties are in the range -100 to 100.
 
-The widget makes use of <https://github.com/bobboteck/JoyStick/>.
+The widget is derived from <https://github.com/bobboteck/JoyStick/>.
 
 ## Setup
 
@@ -36,14 +36,13 @@ joystick.on_change("position", lambda attr, old, new: print(f'x: {new["x"]}, y: 
 show(column(joystick, plot))
 ```
 
-
-
 ## Examples
 
-There are two examples:
+There are 3 examples:
 
 - examples/static_joystick_example.py - show a column with a plot and the joystick, then exit.
 - examples/console_joystick_example.py - show a plot and the joystick in a bokeh server app. Callbacks from the front end drive console logs of the joystick position.
+- examples/bigger_joystick.py - Scale the size of the rendered joystick.
 
 ## Roadmap
 
