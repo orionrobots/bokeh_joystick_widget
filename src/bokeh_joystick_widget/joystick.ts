@@ -1,12 +1,12 @@
 /*
  * Name          : joystick.ts
  * @author       : Roberto D'Amico (Bobboteck)
- * Last modified : 05.02.2024
- * Revision      : 3.1.0
+ * Last modified : 05.06.2024
+ * Revision      : 4.0.0
  *
  * Modification History:
  * Date         Version     Modified By     Description
- * 2024-05-02   3.1.0       Danny Staple    Swapping element name, for an element
+ * 2024-05-06   4.0.0       Danny Staple    Making embeddable in Bokeh
  * 2023-09-22   3.0.0       cybaj           Porting to TypeScript
  * 2021-12-21   2.0.0       Roberto D'Amico New version of the project that integrates the callback functions, while
  *                                          maintaining compatibility with previous versions. Fixed Issue #27 too,
@@ -113,6 +113,13 @@ const JoyStickDefaultParameters: JoyStickParameters = {
 
 export type JoyStickCallback = (stickStatus: StickStatus) => void;
 
+function hasTouch(): boolean {
+  const isTouchCapable = "ontouchstart" in document.documentElement ||
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0;
+  return isTouchCapable;
+}
+
 export class JoyStick {
   private title: string;
   private width: number;
@@ -207,30 +214,30 @@ export class JoyStick {
     this.movedY = this.centerY;
 
     // Check if the device support the touch or not
-    if ("ontouchstart" in document.documentElement) {
+    if (hasTouch()) {
       this.canvas.addEventListener(
         "touchstart",
         this.onTouchStart.bind(this),
         false
       );
-      document.addEventListener(
+      container.addEventListener(
         "touchmove",
         this.onTouchMove.bind(this),
         false
       );
-      document.addEventListener("touchend", this.onTouchEnd.bind(this), false);
+      container.addEventListener("touchend", this.onTouchEnd.bind(this), false);
     } else {
       this.canvas.addEventListener(
         "mousedown",
         this.onMouseDown.bind(this),
         false
       );
-      document.addEventListener(
+      container.addEventListener(
         "mousemove",
         this.onMouseMove.bind(this),
         false
       );
-      document.addEventListener("mouseup", this.onMouseUp.bind(this), false);
+      container.addEventListener("mouseup", this.onMouseUp.bind(this), false);
     }
 
     // Draw the object
@@ -372,7 +379,9 @@ export class JoyStick {
     this.pressed = true;
   }
 
-  /* To simplify this code there was a new experimental feature here: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX , but it present only in Mouse case not metod presents in Touch case :-( */
+  /* To simplify this code there was a new experimental feature here:
+    https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/offsetX ,
+    but it present only in Mouse case not method presents in Touch case :-( */
   private onMouseMove(event: MouseEvent) {
     if (this.pressed) {
       this.movedX = event.pageX;
@@ -431,7 +440,7 @@ export class JoyStick {
 
   getCardinalDirection() {
     let result = "";
-    const orizontal = this.movedX - this.centerX;
+    const horizontal = this.movedX - this.centerX;
     const vertical = this.movedY - this.centerY;
 
     if (
@@ -447,14 +456,14 @@ export class JoyStick {
       result = "S";
     }
 
-    if (orizontal < this.directionHorizontalLimitNeg) {
+    if (horizontal < this.directionHorizontalLimitNeg) {
       if (result === "C") {
         result = "W";
       } else {
         result += "W";
       }
     }
-    if (orizontal > this.directionHorizontalLimitPos) {
+    if (horizontal > this.directionHorizontalLimitPos) {
       if (result === "C") {
         result = "E";
       } else {
@@ -476,7 +485,7 @@ export class JoyStick {
    * @desc The height of canvas
    * @return Number of pixel height
    */
-  public getHeigh() {
+  public getHeight() {
     return this.canvas.height;
   }
 
@@ -497,7 +506,7 @@ export class JoyStick {
   }
 
   /**
-   * @desc Normalizzed value of X move of stick
+   * @desc Normalized value of X move of stick
    * @return Integer from -100 to +100
    */
   public getX() {
@@ -505,7 +514,7 @@ export class JoyStick {
   }
 
   /**
-   * @desc Normalizzed value of Y move of stick
+   * @desc Normalized value of Y move of stick
    * @return Integer from -100 to +100
    */
   public getY() {
