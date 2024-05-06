@@ -52,4 +52,4 @@ There are 3 examples:
     - Note - this is a TS file from the original, adapted here. The DOM element change
       is important.
 - Figure out how to make that tidier. - done
-- Figure out how to publish to PyPi (alpha) and test in a pip installed test.
+- Figure out how to publish to PyPi (alpha) and test in a pip installed test. - done
