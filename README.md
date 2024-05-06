@@ -8,7 +8,35 @@ The widget makes use of <https://github.com/bobboteck/JoyStick/>.
 
 ## Setup
 
+Install with pip:
+
+```bash
+pip install bokeh-joystick-widget
+```
+
+Or poetry:
+
+```bash
+poetry add bokeh-joystick-widget
+```
+
 ## Usage
+
+In your bokeh app, you can use the joystick widget like this:
+
+```python
+from bokeh_joystick_widget import JoystickWidget
+:
+# some plot
+:
+joystick = JoystickWidget()
+joystick.on_change("position", lambda attr, old, new: print(f'x: {new["x"]}, y: {new["y"]}'))
+:
+:
+show(column(joystick, plot))
+```
+
+
 
 ## Examples
 

@@ -29,7 +29,7 @@ class ConsoleJoystick(Handler):
         doc.add_root(column(plot, joystick))
 
 
-server = Server({"/": Application(ConsoleJoystick())}, port=5006)
+server = Server({"/": Application(ConsoleJoystick())}, port=5006, address="0.0.0.0", allow_websocket_origin=["*"])
 server.start()
 print("Server started at http://localhost:5006/")
 server.run_until_shutdown()
