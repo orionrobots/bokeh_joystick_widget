@@ -113,6 +113,13 @@ const JoyStickDefaultParameters: JoyStickParameters = {
 
 export type JoyStickCallback = (stickStatus: StickStatus) => void;
 
+function hasTouch(): boolean {
+  const isTouchCapable = "ontouchstart" in document.documentElement ||
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0;
+  return isTouchCapable;
+}
+
 export class JoyStick {
   private title: string;
   private width: number;
@@ -207,7 +214,7 @@ export class JoyStick {
     this.movedY = this.centerY;
 
     // Check if the device support the touch or not
-    if ("ontouchstart" in document.documentElement) {
+    if (hasTouch()) {
       this.canvas.addEventListener(
         "touchstart",
         this.onTouchStart.bind(this),
@@ -476,7 +483,7 @@ export class JoyStick {
    * @desc The height of canvas
    * @return Number of pixel height
    */
-  public getHeigh() {
+  public getHeight() {
     return this.canvas.height;
   }
 
@@ -497,7 +504,7 @@ export class JoyStick {
   }
 
   /**
-   * @desc Normalizzed value of X move of stick
+   * @desc Normalized value of X move of stick
    * @return Integer from -100 to +100
    */
   public getX() {
@@ -505,7 +512,7 @@ export class JoyStick {
   }
 
   /**
-   * @desc Normalizzed value of Y move of stick
+   * @desc Normalized value of Y move of stick
    * @return Integer from -100 to +100
    */
   public getY() {
