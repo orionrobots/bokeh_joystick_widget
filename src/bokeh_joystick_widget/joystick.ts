@@ -438,7 +438,7 @@ export class JoyStick {
 
   getCardinalDirection() {
     let result = "";
-    const orizontal = this.movedX - this.centerX;
+    const horizontal = this.movedX - this.centerX;
     const vertical = this.movedY - this.centerY;
 
     if (
@@ -454,14 +454,14 @@ export class JoyStick {
       result = "S";
     }
 
-    if (orizontal < this.directionHorizontalLimitNeg) {
+    if (horizontal < this.directionHorizontalLimitNeg) {
       if (result === "C") {
         result = "W";
       } else {
         result += "W";
       }
     }
-    if (orizontal > this.directionHorizontalLimitPos) {
+    if (horizontal > this.directionHorizontalLimitPos) {
       if (result === "C") {
         result = "E";
       } else {
