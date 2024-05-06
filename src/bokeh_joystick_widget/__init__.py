@@ -1,5 +1,5 @@
 from bokeh.models import InputWidget
-from bokeh.core.properties import Bool, Float, Tuple
+from bokeh.core.properties import Bool, Float, Tuple, Int
 
 
 class JoystickWidget(InputWidget):
@@ -19,3 +19,10 @@ class JoystickWidget(InputWidget):
     )
     # Add properties that represent the joystick state
     position = Tuple(Float, Float, default=[0, 0], help="Position of the joystick")
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        if self.width is None:
+            self.width = 200
+        if self.height is None:
+            self.height = 200
