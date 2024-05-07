@@ -44,6 +44,15 @@ There are 3 examples:
 - examples/console_joystick_example.py - show a plot and the joystick in a bokeh server app. Callbacks from the front end drive console logs of the joystick position.
 - examples/bigger_joystick.py - Scale the size of the rendered joystick.
 
+## Screenshots
+
+![Joystick](https://github.com/orionrobots/bokeh_joystick_widget/blob/main/images/bigger_joystick_under_graph.png?raw=true)
+
+Output data:
+
+![Joystick](https://github.com/orionrobots/bokeh_joystick_widget/blob/main/images/joystick_output_data.png)
+
+
 ## Roadmap
 
 - Get the example JS demo widget/bokeh model to work - whatever that widget is. - done
