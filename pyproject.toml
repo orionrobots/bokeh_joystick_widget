@@ -28,7 +28,7 @@ classifiers = [
 
 [tool.poetry]
 name = "bokeh-joystick-widget"
-version = "0.3.3"
+version = "0.3.4"
 description = "A Bokeh on screen gesture/mouse drag based joystick widget for use in a dashboard with controls"
 authors = ["Danny Staple <danny@orionrobots.co.uk>"]
 license = "MIT"
