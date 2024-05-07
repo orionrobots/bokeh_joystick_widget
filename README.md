@@ -46,11 +46,11 @@ There are 3 examples:
 
 ## Screenshots
 
-![Joystick](images/bigger_joystick_under_graph.png)
+![Joystick](https://github.com/orionrobots/bokeh_joystick_widget/blob/main/images/bigger_joystick_under_graph.png?raw=true)
 
 Output data:
 
-![Joystick](images/joystick_output_data.png)
+![Joystick](https://github.com/orionrobots/bokeh_joystick_widget/blob/main/images/joystick_output_data.png)
 
 
 ## Roadmap
