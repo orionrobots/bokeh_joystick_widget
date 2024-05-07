@@ -26,9 +26,13 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
 ]
 
+[project.urls]
+homepage = "https://pypi.org/project/bokeh-joystick-widget/"
+repository = "https://github.com/orionrobots/bokeh_joystick_widget"
+
 [tool.poetry]
 name = "bokeh-joystick-widget"
-version = "0.3.1"
+version = "0.3.2"
 description = "A Bokeh on screen gesture/mouse drag based joystick widget for use in a dashboard with controls"
 authors = ["Danny Staple <danny@orionrobots.co.uk>"]
 license = "MIT"
