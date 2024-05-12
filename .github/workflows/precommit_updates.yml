@@ -26,9 +26,14 @@ jobs:
         run: pip install pre-commit
 
       - name: Run pre-commit autoupdate
-        run: pre-commit autoupdate
+        id: auto_update
+        run: |
+          pre-commit autoupdate
+          files_changed_count="$(git diff --name-only | wc -l)"
+          echo "files_changed_count=$files_changed_count" >> "$GITHUB_OUTPUT"
 
       - name: Commit changes
+        if: ${{ steps.auto_update.outputs.files_changed_count != '0' }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -36,6 +41,7 @@ jobs:
           git commit -m "Auto-update pre-commit hooks"
 
       - name: Create pull request
+        if: ${{ steps.auto_update.outputs.files_changed_count != '0' }}
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
