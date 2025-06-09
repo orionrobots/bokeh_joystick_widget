@@ -25,3 +25,8 @@ jobs:
           poetry install
 
       # Add more steps here for your specific checks or tests
+      - name: Run tests
+        run: |
+          poetry install --with test
+          poetry run playwright install
+          poetry run pytest src/tests
