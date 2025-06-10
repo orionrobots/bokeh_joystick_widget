@@ -6,6 +6,6 @@ updates:
       interval: "daily"
   - package-ecosystem: "pip"
     directories:
-      "*/**"
+      - "*/**"
     schedule:
       interval: "daily"
