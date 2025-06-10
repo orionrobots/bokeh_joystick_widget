@@ -11,7 +11,7 @@ authors = [
 ]
 description = "A Bokeh on screen gesture/mouse drag based joystick widget for use in a dashboard with controls"
 readme = "README.md"
-license = {file = "LICENSE.md"}
+# license = {file = "LICENSE.md"}
 keywords = ["bokeh", "joystick"]
 
 classifiers = [
