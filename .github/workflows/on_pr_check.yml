@@ -7,6 +7,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     env:
       CACHE_FROM: type=registry,ref=ghcr.io/orionrobots/bokeh_joystick_widget:test_cache
