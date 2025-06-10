@@ -8,16 +8,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CACHE_FROM: type=registry,ref=orionrobots/bokeh_joystick_widget:test_cache
+      CACHE_TO: type=registry,ref=orionrobots/bokeh_joystick_widget:test_cache
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the docker image
         run: |
           docker build \
             -t bokeh_joystick_widget:test \
             --build-arg PYTHON_VERSION=3.11 \
+            --cache-from ${CACHE_FROM} \
+            --cache-to ${CACHE_TO} \
             -f test.Dockerfile \
             .
       - name: Run tests
@@ -46,4 +58,3 @@ jobs:
 #             --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
 #             -f test.Dockerfile \
 #             .
-
