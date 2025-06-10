@@ -42,7 +42,7 @@ jobs:
 
       - name: Create pull request
         if: ${{ steps.auto_update.outputs.files_changed_count != '0' }}
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Auto-update pre-commit hooks"
