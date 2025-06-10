@@ -1,6 +1,8 @@
 # Build with:
 # PYTHON_VERSION=3.11
-# docker build . -f test.Dockerfile --arg python_version=${PYTHON_VERSION} -t bokeh_joystick_widget:test-${PYTHON_VERSION}
+# docker build . -f test.Dockerfile \
+#   --arg python_version=${PYTHON_VERSION} \
+#   -t bokeh_joystick_widget:test-${PYTHON_VERSION}
 # docker run --init --rm -it -v "${PWD}:/app" bokeh_joystick_widget:test-${PYTHON_VERSION}
 ARG python_version=3.11
 FROM python:${python_version}-slim

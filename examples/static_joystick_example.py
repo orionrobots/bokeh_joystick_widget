@@ -13,7 +13,8 @@ source = ColumnDataSource(data=dict(x=pl_x, y=pl_y))
 plot.line("x", "y", source=source, line_width=3, line_alpha=0.6, color="#ed5565")
 
 joystick = JoystickWidget()
-joystick.on_change('position',
-    lambda attr, old, new: print(f"position changed: {old} -> {new}"))
+joystick.on_change(
+    "position", lambda attr, old, new: print(f"position changed: {old} -> {new}")
+)
 
 curdoc().add_root(column(plot, joystick))

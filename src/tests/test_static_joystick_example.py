@@ -6,11 +6,14 @@ import shutil
 import pytest
 from playwright.sync_api import sync_playwright, Page, expect
 
+
 @pytest.fixture(scope="module")
 def start_static_example():
     """Start the static example server."""
     # Start the static example server
-    process = pexpect.spawn("bokeh serve examples/static_joystick_example.py", encoding='utf-8')
+    process = pexpect.spawn(
+        "bokeh serve examples/static_joystick_example.py", encoding="utf-8"
+    )
     time.sleep(2)
     with sync_playwright() as p:
         try:
@@ -58,7 +61,8 @@ def expect_exact_wrapper(process, pattern, timeout=0.5):
     except pexpect.TIMEOUT:
         raise AssertionError(
             f"""Expected pattern '{pattern}' not found in output.
-            Output: {process.before.strip()}""")
+            Output: {process.before.strip()}"""
+        )
     return process.before.strip()
 
 
@@ -74,8 +78,8 @@ def test_moving_the_joystick_should_update_position(start_static_example):
     if not joystick_position:
         pytest.fail("Joystick widget bounding box not found.")
     # Calculate the center of the joystick widget
-    joystick_center_x = joystick_position['x'] + joystick_position['width'] / 2
-    joystick_center_y = joystick_position['y'] + joystick_position['height'] / 2
+    joystick_center_x = joystick_position["x"] + joystick_position["width"] / 2
+    joystick_center_y = joystick_position["y"] + joystick_position["height"] / 2
     print(f"Joystick center position: ({joystick_center_x}, {joystick_center_y})")
     # Move the mouse to the center of the joystick widget
     print("Moving mouse to joystick center...")
@@ -87,9 +91,13 @@ def test_moving_the_joystick_should_update_position(start_static_example):
     page.mouse.move(joystick_center_x + 50, joystick_center_y + 50)
     # Wait for a short duration to ensure the position is updated
     print("Mouse moved to (50, 50) relative to joystick center, checking output...")
-    expect_exact_wrapper(process, "position changed: (0, 0) -> (100, -100)", timeout=0.5)
+    expect_exact_wrapper(
+        process, "position changed: (0, 0) -> (100, -100)", timeout=0.5
+    )
 
     # Release the mouse to stop dragging
     page.mouse.up()
     # It should go back to 0
-    expect_exact_wrapper(process, "position changed: (100, -100) -> (0, 0)", timeout=0.5)
+    expect_exact_wrapper(
+        process, "position changed: (100, -100) -> (0, 0)", timeout=0.5
+    )
