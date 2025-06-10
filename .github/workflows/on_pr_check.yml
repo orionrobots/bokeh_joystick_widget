@@ -35,6 +35,7 @@ jobs:
             --cache-from ${CACHE_FROM} \
             --cache-to ${CACHE_TO} \
             -f test.Dockerfile \
+            --load \
             .
       - name: Run tests
         run: |
