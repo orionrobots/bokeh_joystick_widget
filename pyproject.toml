@@ -49,6 +49,7 @@ pre-commit = ">=3.7,<5.0"
 
 [tool.poetry.group.test.dependencies]
 pytest-playwright = "^0.7.0"
+pexpect = "^4.9.0"
 
 [build-system]
 requires = ["poetry-core"]

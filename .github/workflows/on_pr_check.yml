@@ -13,42 +13,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-          poetry install
-
-      # Add more steps here for your specific checks or tests
-      - name: Run tests
-        run: |
-          poetry install --with test
-          poetry run playwright install
-          poetry run pytest src/tests
-
-jobs:
-  test_matrix:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build docker image
-        env:
-          PYTHON_VERSION: ${{ matrix.python-version }}
+      - name: Build the docker image
         run: |
           docker build \
-            -t bokeh_joystick_widget:test-${PYTHON_VERSION} \
-            --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+            -t bokeh_joystick_widget:test \
+            --build-arg PYTHON_VERSION=3.11 \
             -f test.Dockerfile \
             .
+      - name: Run tests
+        run: |
+          docker run --rm \
+            bokeh_joystick_widget:test \
+            pytest --disable-warnings -q -s
+
+# jobs:
+#   test_matrix:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Build docker image
+#         env:
+#           PYTHON_VERSION: ${{ matrix.python-version }}
+#         run: |
+#           docker build \
+#             -t bokeh_joystick_widget:test-${PYTHON_VERSION} \
+#             --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+#             -f test.Dockerfile \
+#             .
 
