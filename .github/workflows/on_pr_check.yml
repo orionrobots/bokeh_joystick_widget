@@ -8,20 +8,58 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      CACHE_FROM: type=registry,ref=ghcr.io/orionrobots/bokeh_joystick_widget:test_cache
+      CACHE_TO: type=registry,ref=ghcr.io/orionrobots/bokeh_joystick_widget:test_cache
+      DOCKER_BUILDKIT: 1
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3
+
+      - name: Docker login
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3
         with:
-          python-version: 3.11
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
-      - name: Install dependencies
+      - name: Build the docker image
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-          poetry install
+          docker buildx build \
+            -t bokeh_joystick_widget:test \
+            --build-arg PYTHON_VERSION=3.11 \
+            --cache-from ${CACHE_FROM} \
+            --cache-to ${CACHE_TO} \
+            -f test.Dockerfile \
+            --load \
+            .
+      - name: Run tests
+        run: |
+          docker run --rm \
+            bokeh_joystick_widget:test \
+            pytest --disable-warnings -q -s
 
-      # Add more steps here for your specific checks or tests
+# jobs:
+#   test_matrix:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Build docker image
+#         env:
+#           PYTHON_VERSION: ${{ matrix.python-version }}
+#         run: |
+#           docker build \
+#             -t bokeh_joystick_widget:test-${PYTHON_VERSION} \
+#             --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+#             -f test.Dockerfile \
+#             .
