@@ -1,5 +1,4 @@
-from bokeh.io import show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, curdoc
 
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource
@@ -14,6 +13,8 @@ source = ColumnDataSource(data=dict(x=pl_x, y=pl_y))
 plot.line("x", "y", source=source, line_width=3, line_alpha=0.6, color="#ed5565")
 
 joystick = JoystickWidget()
-# joystick.on_change('position', lambda attr, old, new: print(f"position changed: {old} -> {new}"))
+joystick.on_change(
+    "position", lambda attr, old, new: print(f"position changed: {old} -> {new}")
+)
 
-show(column(plot, joystick))
+curdoc().add_root(column(plot, joystick))
