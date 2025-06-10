@@ -30,3 +30,25 @@ jobs:
           poetry install --with test
           poetry run playwright install
           poetry run pytest src/tests
+
+jobs:
+  test_matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11, 3.12, 3.13]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build docker image
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          docker build \
+            -t bokeh_joystick_widget:test-${PYTHON_VERSION} \
+            --build-arg PYTHON_VERSION=${PYTHON_VERSION} \
+            -f test.Dockerfile \
+            .
+
